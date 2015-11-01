@@ -1,0 +1,42 @@
+<ion-view hide-nav-bar="true">
+  <ion-pane>
+    <div class="row">
+      <div class="card-position">
+        <div class="card">
+          <div class="item item-text-wrap question">
+            {{cards[selected].title}}
+          </div>
+        </div>
+      </div>
+    </div>
+    <swipe-cards on-card-swipe="onSwipe($event)">
+      <swipe-card on-card-swipe="cardSwiped()" id="start-card" on-destroy="initCounter($index)">
+        Swipe down for a new card
+      </swipe-card>
+      <swipe-card ng-repeat="card in cards" on-destroy="cardDestroyed($index)" on-card-swipe="cardSwiped($index)">
+
+        <div style="height: 100%;">
+          <div class="image">
+            <img ng-src="{{card.image}}">
+          </div>
+          <div class="buttons-questions">
+            <button class="button button-stable" ng-click="goAway()">A) Hertzl  Hertzl Hertzl Hertzl Hertzl Hertzl Hertzl Hertzl Hertzl Hertzl Hertzl</button>
+            <button class="button button-stable" ng-click="goAway()">B) Ben Gurion Ben Gurion Ben Gurion Ben Gurion Ben Gurion Ben Gurion Ben Gurion</button>
+            <button class="button button-stable" ng-click="goAway()">C) Golda Meir Golda Meir Golda Meir Golda Meir Golda Meir Golda Meir Golda Meir Golda Meir Golda Meir Golda Meir Golda Meir</button>
+          </div>
+        </div>
+      </swipe-card>
+    </swipe-cards>
+    <div class="progress-pie-chart" data-start-time="10" data-percent="11" ng-show="gameStarted">
+      <div class="ppc-progress">
+        <div class="ppc-progress-fill"></div>
+      </div>
+      <div class="ppc-percents">
+        <div class="pcc-percents-wrapper">
+          <span>sec</span>
+        </div>
+      </div>
+    </div>
+  </ion-pane>
+
+</ion-view>
