@@ -88,15 +88,15 @@ angular.module('starter.controllers', [])
 
     function drawCircle() {
 
-      var deg = 360*($scope.seconds/$scope.startTime), percent = calculatePercent();
+      var deg = Math.round(360*($scope.seconds/$scope.startTime), percent = calculatePercent());
 
       if (percent > ($scope.startTime/2)) {
         $('.progress-pie-chart').addClass('gt-50');
       } else {
         $('.progress-pie-chart').removeClass('gt-50');
       }
-
-      $('.ppc-progress-fill').css('transform','rotate('+ deg +'deg)');
+      $('.ppc-progress-fill').removeClass().addClass('ppc-progress-fill');
+      $('.ppc-progress-fill').addClass('transform-'+deg);
 
       $('.ppc-percents span').html(percent);
     }

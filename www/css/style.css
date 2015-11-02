@@ -6,11 +6,12 @@ button{
 }
 .buttons-questions{
   text-align: center;
-  position: relative;
-  top: 6%;
 }
 .buttons-questions button{
-  max-width: 96%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 96%;
 }
 .card-position{
   position: fixed;
@@ -21,4 +22,16 @@ button{
 }
 .card{
   height: 62% !important;
+}
+.card-help{
+  position: fixed;
+  top: 75%;
+  height: 30%;
+  width: 100%;
+  text-align: center;
+
+}
+.card-help button{
+  margin-bottom: 10px;
+  min-width: 300px;
 }
