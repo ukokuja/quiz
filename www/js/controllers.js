@@ -25,39 +25,66 @@ angular.module('starter.controllers', [])
       enableFriends: true
     };
   })
-  .controller('GameCtrl', function($scope, $ionicSwipeCardDelegate) {
+  .controller('GameCtrl', function($scope, $ionicSwipeCardDelegate, $timeout) {
+    $scope.questionsRef = new Firebase('https://maccabi.firebaseio.com/questions');
+    $scope.cards = {};
     $scope.selected = 0;
-    var cardTypes = [{ title: 'Swipe down to clear the card', image: 'http://ionicframework.com.s3.amazonaws.com/demos/ionic-contrib-swipecards/pic.png' },
-      { title: 'Where is this?', image: 'http://ionicframework.com.s3.amazonaws.com/demos/ionic-contrib-swipecards/pic.png' },
-      { title: 'What kind of grass is this?', image: 'http://ionicframework.com.s3.amazonaws.com/demos/ionic-contrib-swipecards/pic2.png' },
-      { title: 'What beach is this?', image: 'http://ionicframework.com.s3.amazonaws.com/demos/ionic-contrib-swipecards/pic3.png' },
-      { title: 'What kind of clouds are these?', image: 'http://ionicframework.com.s3.amazonaws.com/demos/ionic-contrib-swipecards/pic4.png' }];
-
-    $scope.cards = Array.prototype.slice.call(cardTypes, 0, 0);
-
     $scope.cardSwiped = function(index) {
-      $scope.addCard();
+      $scope.questionsRef.limitToFirst(8).once('value', function(qSnap){
+        $timeout(function(){
+          var cards = qSnap.val();
+          var i =1;
+          angular.forEach(cards, function(val){
+            val.key = i;
+            var rand = Math.floor(Math.random() * 3);
+            val.answers.splice(rand, 0, val.correct);
+            val.correct = rand;
+            i++;
+          })
+          $scope.cards = cards;
+        })
+      });
     };
-
+    $scope.giveMeStyle = function(){
+      var cw = $('.image-question img').width();
+      $('.image-question img').css({'max-height':cw*0.70+'px'});
+      return {
+        "-webkit-filter": "blur(10px) grayscale(100%)",
+        "filter": "blur(10px) grayscale(100%)"
+      };
+    }
     $scope.cardDestroyed = function(index) {
       $scope.cards.splice(index, 1);
+      //$scope.goAway(true, true);
     };
 
-    $scope.addCard = function() {
-      var newCard = cardTypes[Math.floor(Math.random() * cardTypes.length)];
-      newCard.id = Math.random();
-      $scope.cards.push(angular.extend({}, newCard));
-    }
     $scope.howmuch = 10;
-    $scope.goAway = function(countCall) {
-      $ionicSwipeCardDelegate.popCard($scope, true);
+    $scope.goAway = function (countCall, swiped, index, correct) {
       $scope.howmuch--;
       $scope.seconds = $scope.saveSeconds;
-      if(!countCall){
+
+      if (!swiped) {
         clearTimeout($scope.timeOut);
-        countdown();
+        $({blurRadius: 10}).animate({blurRadius: 0}, {
+          duration: 500,
+          easing: 'swing', // or "linear"
+                           // use jQuery UI or Easing plugin for more options
+          step: function () {
+            console.log(this.blurRadius);
+            $('.image-question img').css({
+              "-webkit-filter": "blur(" + this.blurRadius + "px)",
+              "filter": "blur(" + this.blurRadius + "px)"
+            });
+          }
+        });
+        $timeout(function () {
+          $ionicSwipeCardDelegate.popCard($scope, true);
+          if (!countCall) {
+            countdown();
+          }
+          return $scope.howmuch > 0;
+        }, 1500);
       }
-      return $scope.howmuch > 0;
     };
     $scope.seconds = $('.progress-pie-chart').data('percent');
     $scope.startTime = $('.progress-pie-chart').data('start-time');
@@ -72,11 +99,11 @@ angular.module('starter.controllers', [])
 
         drawCircle();
         if( $scope.seconds > 0 ) {
-          $scope.timeOut = setTimeout(tick, 1000);
+          $scope.timeOut = setTimeout(tick, 10000);
         } else {
-          var again = $scope.goAway(true);
+          var again = $scope.goAway(false, false);
           if(again)
-            $scope.timeOut = setTimeout(tick, 1000);
+            $scope.timeOut = setTimeout(tick, 10000);
         }
       }
       tick();
@@ -95,8 +122,7 @@ angular.module('starter.controllers', [])
       } else {
         $('.progress-pie-chart').removeClass('gt-50');
       }
-      $('.ppc-progress-fill').removeClass().addClass('ppc-progress-fill');
-      $('.ppc-progress-fill').addClass('transform-'+deg);
+      $('.ppc-progress-fill').css('transform', "rotate("+deg+"deg)");
 
       $('.ppc-percents span').html(percent);
     }
