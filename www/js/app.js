@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'ionic.contrib.ui.cards', 'ionic-material'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'ionic.contrib.ui.cards', 'ionic-material', 'ion-gallery'])
 
   .run(function($ionicPlatform) {
     $ionicPlatform.ready(function() {
@@ -36,6 +36,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         url: '/game',
         templateUrl: 'templates/game.html',
         controller: 'GameCtrl'
+      })
+      .state('menu', {
+        url: '/menu',
+        templateUrl: 'templates/menu.html',
+        controller: 'MenuCtrl'
+      })
+      .state('gallery', {
+        url: '/gallery',
+        templateUrl: 'templates/gallery.html',
+        controller: 'GalleryCtrl'
       })
       .state('tab', {
         url: '/tab',
@@ -85,6 +95,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       });
 
     // if none of the above states are matched, use this as the fallback
-    $urlRouterProvider.otherwise('game');
+    $urlRouterProvider.otherwise('menu');
 
   });

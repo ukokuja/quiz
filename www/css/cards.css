@@ -6,7 +6,8 @@
 }
 
 .pane {
-  background-color: #333 !important
+  background: url('../img/texture.png');
+  background-size: cover;
 }
 
 .bar.bar-transparent {
@@ -44,6 +45,7 @@
   border-radius: 4px;
   overflow: hidden;
   -webkit-animation-fill-mode: forwards;
+  box-shadow: 0px 10px 10px 0px;
 }
 
 .swipe-card .title {
@@ -103,4 +105,8 @@
 }
 .card .question{
   text-align: center;
+  font-family: 'Raleway', sans-serif;
+  color: #000;
+  font-weight: bold;
+  font-size: medium;
 }

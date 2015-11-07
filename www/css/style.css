@@ -22,6 +22,7 @@ button{
 }
 .card{
   height: 62% !important;
+  background: url('../img/flag.png') no-repeat center;
 }
 .card-help{
   position: fixed;
@@ -34,4 +35,38 @@ button{
 .card-help button{
   margin-bottom: 10px;
   min-width: 300px;
+}
+.buttons-bekeff .center-buttons{
+  text-align: center;
+}
+.buttons-bekeff .center-buttons button{
+  margin: 5px 0;
+}
+.logo img.logo{
+  width: 40%;
+}
+.logo{
+  margin: 2% 0 15% 0;
+  text-align: center;
+}
+.imageView.modal{
+  height: 90% !important;
+  top: 5%;
+}
+.font-amatic{
+  font-family: 'Amatic SC', cursive;
+}
+.bekeff{
+  text-align: center;
+  font-size: 74px;
+  color: #FFF;
+  padding: 24% 0;
+}
+.buttons-bekeff{
+  position: absolute;
+  top: 100%;
+}
+.scroll-content{
+  background: url('../img/texture.png');
+  background-size: cover;
 }

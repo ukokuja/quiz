@@ -20,6 +20,21 @@ angular.module('starter.controllers', [])
   .controller('ChatDetailCtrl', function($scope, $stateParams, Chats) {
     $scope.chat = Chats.get($stateParams.chatId);
   })
+  .controller('GalleryCtrl', function($scope, $timeout) {
+    $scope.galleryRef = new Firebase('https://maccabi.firebaseio.com/gallery');
+    $scope.items = {};
+    $scope.galleryRef.once('value', function(gallerySnap){
+      $timeout(function(){
+        $scope.items = gallerySnap.val();
+      })
+    })
+  })
+  .controller('MenuCtrl', function($scope, $location) {
+    $scope.to = function(to){
+      $location.path(to);
+    }
+
+  })
   .controller('AccountCtrl', function($scope) {
     $scope.settings = {
       enableFriends: true
@@ -99,11 +114,11 @@ angular.module('starter.controllers', [])
 
         drawCircle();
         if( $scope.seconds > 0 ) {
-          $scope.timeOut = setTimeout(tick, 10000);
+          $scope.timeOut = setTimeout(tick, 1000);
         } else {
           var again = $scope.goAway(false, false);
           if(again)
-            $scope.timeOut = setTimeout(tick, 10000);
+            $scope.timeOut = setTimeout(tick, 1000);
         }
       }
       tick();
