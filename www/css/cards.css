@@ -38,14 +38,14 @@
   left: 20%;
   top: 25%;
   width: 60%;
-  max-height: 60%;
+  max-height: 62%;
   min-height: 40%;
   box-sizing: border-box;
   background-color: #f8f8f8;
   border-radius: 4px;
   overflow: hidden;
   -webkit-animation-fill-mode: forwards;
-  box-shadow: 0px 10px 10px 0px;
+  box-shadow: 4px 3px 14px -4px;
 }
 
 .swipe-card .title {
@@ -109,4 +109,10 @@
   color: #000;
   font-weight: bold;
   font-size: medium;
+}
+.buttons-questions button:first-child{
+  margin-top: 5px;
+}
+.buttons-questions button:last-child{
+  margin-bottom: 5px;
 }

@@ -47,6 +47,11 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         templateUrl: 'templates/gallery.html',
         controller: 'GalleryCtrl'
       })
+      .state('finish', {
+        url: '/finish',
+        templateUrl: 'templates/finish.html',
+        controller: 'FinishCtrl'
+      })
       .state('tab', {
         url: '/tab',
         abstract: true,

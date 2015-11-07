@@ -35,12 +35,18 @@ angular.module('starter.controllers', [])
     }
 
   })
+  .controller('FinishCtrl', function($scope, $location) {
+    $scope.to = function(to){
+      $location.path(to);
+    }
+
+  })
   .controller('AccountCtrl', function($scope) {
     $scope.settings = {
       enableFriends: true
     };
   })
-  .controller('GameCtrl', function($scope, $ionicSwipeCardDelegate, $timeout) {
+  .controller('GameCtrl', function($scope, $ionicSwipeCardDelegate, $timeout ,$location) {
     $scope.questionsRef = new Firebase('https://maccabi.firebaseio.com/questions');
     $scope.cards = {};
     $scope.selected = 0;
@@ -73,52 +79,58 @@ angular.module('starter.controllers', [])
       //$scope.goAway(true, true);
     };
 
-    $scope.howmuch = 10;
+    $scope.howmuch = 8;
+    $scope.didntAnswer = true;
     $scope.goAway = function (countCall, swiped, index, correct) {
-      $scope.howmuch--;
-      $scope.seconds = $scope.saveSeconds;
+      if($scope.didntAnswer){
+        $scope.howmuch--;
 
-      if (!swiped) {
-        clearTimeout($scope.timeOut);
-        $({blurRadius: 10}).animate({blurRadius: 0}, {
-          duration: 500,
-          easing: 'swing', // or "linear"
-                           // use jQuery UI or Easing plugin for more options
-          step: function () {
-            console.log(this.blurRadius);
-            $('.image-question img').css({
-              "-webkit-filter": "blur(" + this.blurRadius + "px)",
-              "filter": "blur(" + this.blurRadius + "px)"
+          $scope.didntAnswer = false;
+          $scope.seconds = $scope.saveSeconds;
+
+          if (!swiped) {
+            clearTimeout($scope.timeOut);
+            $({blurRadius: 10}).animate({blurRadius: 0}, {
+              duration: 500,
+              easing: 'swing', // or "linear"
+                               // use jQuery UI or Easing plugin for more options
+              step: function () {
+                $('.image-question img').css({
+                  "-webkit-filter": "blur(" + this.blurRadius + "px)",
+                  "filter": "blur(" + this.blurRadius + "px)"
+                });
+              }
             });
+            $timeout(function () {
+              $ionicSwipeCardDelegate.popCard($scope, true);
+              if (!countCall) {
+                countdown();
+              }
+              $scope.didntAnswer = true;
+              if(!$scope.howmuch > 0){
+                $location.path('finish');
+              }
+              return $scope.howmuch > 0;
+            }, 1500);
           }
-        });
-        $timeout(function () {
-          $ionicSwipeCardDelegate.popCard($scope, true);
-          if (!countCall) {
-            countdown();
-          }
-          return $scope.howmuch > 0;
-        }, 1500);
       }
     };
     $scope.seconds = $('.progress-pie-chart').data('percent');
     $scope.startTime = $('.progress-pie-chart').data('start-time');
     $scope.saveSeconds = $scope.seconds;
     function countdown() {
-      console.log("calling");
       function tick() {
         $scope.seconds--;
         $('.progress-pie-chart').data('percent', $scope.seconds);
 
-        console.log($scope.seconds);
 
         drawCircle();
         if( $scope.seconds > 0 ) {
-          $scope.timeOut = setTimeout(tick, 1000);
+          $scope.timeOut = setTimeout(tick, 100);
         } else {
           var again = $scope.goAway(false, false);
           if(again)
-            $scope.timeOut = setTimeout(tick, 1000);
+            $scope.timeOut = setTimeout(tick, 100);
         }
       }
       tick();
