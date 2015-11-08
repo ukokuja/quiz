@@ -1,5 +1,6 @@
 <ion-view title="Galeria">
   <ion-content>
-    <ion-gallery ion-gallery-items="items"></ion-gallery>
+    <ion-gallery ion-gallery-items="items" ng-if="!rech.dale"></ion-gallery>
+    <ion-gallery ion-gallery-items="items" ng-if="rech.dale"></ion-gallery>
   </ion-content>
 </ion-view>

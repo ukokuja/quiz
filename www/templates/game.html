@@ -4,13 +4,13 @@
       <div class="card-position">
         <div class="card">
           <div class="item item-text-wrap question">
-            {{cards[selected].text}}
+            {{giveMeQuestion(cards[selected].text)}}
           </div>
         </div>
       </div>
     </div>
     <swipe-cards on-card-swipe="onSwipe($event)">
-      <swipe-card on-card-swipe="cardSwiped()" id="start-card" on-destroy="initCounter($index)">
+      <swipe-card on-card-swipe="cardSwiped()" id="start-card" on-destroy="cardSwiped()">
         Desliza hacia abajo para empezar!
       </swipe-card>
       <swipe-card ng-repeat="card in cards" on-card-swipe="cardDestroyed($index)" ng-if="selected == $index">
