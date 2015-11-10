@@ -5,8 +5,30 @@
         Bekeff Hajshara
       </span>
     </div>
-    <div>
-      Completa los datos para saber tu puntaje:
+    <div class="finish-data">
+      <span class="">
+        Completa los datos para empezar a jugar:
+      </span>
+      <div class="list list-inset">
+        <label class="item item-input">
+          <input type="text" placeholder="Nombre y apellido" ng-model="user.name">
+        </label>
+      </div>
+      <div class="list list-inset">
+        <label class="item item-input">
+          <input type="email" placeholder="Email" ng-model="user.mail">
+        </label>
+      </div>
+      <div class="pictureContainer" ng-if="user.image">
+        <img ng-src="{{user.image}}">
+      </div>
+      <div class="col-50 col-offset-25">
+        <button class="play button icon-left ion-camera button-positive-900  button-block" ng-click="sacarFoto()">Sacar foto</button>
+      </div>
+
+      <div class="col-80 col-offset-10">
+        <button class="play button icon-left ion-trophy button-positive-900  button-block" ng-click="toGame()">A jugar!</button>
+      </div>
     </div>
 
   </ion-content>

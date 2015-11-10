@@ -10,7 +10,7 @@
       </div>
     </div>
     <swipe-cards on-card-swipe="onSwipe($event)">
-      <swipe-card on-card-swipe="cardSwiped()" id="start-card" on-destroy="cardSwiped()">
+      <swipe-card on-card-swipe="cardSwiped()" id="start-card">
         Desliza hacia abajo para empezar!
       </swipe-card>
       <swipe-card ng-repeat="card in cards" on-card-swipe="cardDestroyed($index)" ng-if="selected == $index">
@@ -19,12 +19,12 @@
             <img ng-src="img/questions/{{cards[selected].key}}.jpg" ng-style="giveMeStyle()">
           </div>
           <div class="buttons-questions">
-            <button ng-repeat="answer in card.answers"  class="button" ng-class="{'button-stable': didntAnswer, 'button-balanced': !didntAnswer && $index==card.correct, 'button-assertive': !didntAnswer && $index!=card.correct && $index==reply}" ng-click="reply=$index;goAway(false, false, $index, card.correct);">{{answer}}</button>
+            <button ng-repeat="answer in card.answers"  class="button" ng-class="{'button-stable': didntAnswer, 'button-balanced': !didntAnswer && $index==card.correct, 'button-assertive': !didntAnswer && $index!=card.correct && $index==reply}" ng-click="reply=$index;goAway(false, $index, reply, card, $parent.$index);">{{answer}}</button>
           </div>
         </div>
       </swipe-card>
     </swipe-cards>
-    <div class="progress-pie-chart" data-start-time="100" data-percent="100" ng-show="gameStarted">
+    <div class="progress-pie-chart" data-start-time="150" data-percent="150" ng-show="gameStarted">
       <div class="ppc-progress">
         <div class="ppc-progress-fill"></div>
       </div>
@@ -33,7 +33,7 @@
       <div class="card-help">
         <button class="button button-royal">Pedir ayuda</button>
         <button class="button button-royal">Consultar a los compañeros</button>
-        <button class="button button-royal">Denunciar pregunta</button>
+        <!--<button class="button button-royal">Denunciar pregunta</button>-->
       </div>
     </div>
   </ion-pane>
