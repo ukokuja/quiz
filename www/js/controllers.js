@@ -177,17 +177,15 @@ angular.module('starter.controllers', [])
         }
       }
       $scope.toGame = function(){
-        alert(1);
         if($scope.user.name && $scope.user.name.length>0 && $scope.user.mail && $scope.user.mail.length>0){
-          alert(2);
-            alert(3);
+          $scope.macRef.child('session').once('value', function(session){
             $timeout(function(){
-              alert(4);
-              $scope.user.session = 0;alert(5);
-              $scope.user.key = $scope.macRef.child('sessions').child(0).push($scope.user).key();alert(6);
-              localStorage.setItem('user', JSON.stringify($scope.user));alert(7);
-              $scope.to('game');alert(8);
+              $scope.user.session = session.val();
+              $scope.user.key = $scope.macRef.child('sessions').child(session.val()).push($scope.user).key();
+              localStorage.setItem('user', JSON.stringify($scope.user));
+              $scope.to('game');
             })
+          })
         }
       }
     })
@@ -759,6 +757,8 @@ angular.module('starter.controllers', [])
         function tick() {
           $scope.seconds--;
           $('.progress-pie-chart').data('percent', $scope.seconds);
+
+
           drawCircle();
           if($scope.seconds>0 && $scope.seconds<6){
             if($scope.sound)
