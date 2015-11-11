@@ -84,7 +84,7 @@ angular.module('starter.controllers', [])
        })
        })*/
     })
-    .controller('MenuCtrl', function($scope, $location) {
+    .controller('MenuCtrl', function($scope, $location, $timeout) {
       $scope.to = function(to){
         $location.path(to);
       }
@@ -141,6 +141,19 @@ angular.module('starter.controllers', [])
         { src: 'img/gallery/IMG_1215.JPG', sub: '' },
         { src: 'img/gallery/IMG_1236.JPG', sub: '' },
         { src: 'img/gallery/be.JPG', sub: '' } ];
+      $timeout(function(){
+        var owl = $("#owl-demo");
+
+        owl.owlCarousel({
+          items : 10, //10 items above 1000px browser width
+          itemsTablet: [700,7],
+          itemsMobile : [450,5], // itemsMobile disabled - inherit from itemsTablet option
+          autoPlay: 1200,
+          slideSpeed: 50,
+          paginationSpeed: 400,
+          rewindSpeed: 500
+        });
+      });
       $scope.getHeight = function(){
         return window.innerHeight;
       }
@@ -158,19 +171,23 @@ angular.module('starter.controllers', [])
         });
 
         function onSuccess(imageData) {
-          $scope.user.image = "data:image/jpeg;base64," + imageData;
+          $scope.$apply(function(){
+            $scope.user.image = "data:image/jpeg;base64," + imageData;
+          })
         }
       }
       $scope.toGame = function(){
+        alert(1);
         if($scope.user.name && $scope.user.name.length>0 && $scope.user.mail && $scope.user.mail.length>0){
-          $scope.macRef.child('session').once('value', function(session){
+          alert(2);
+            alert(3);
             $timeout(function(){
-              $scope.user.session = session.val();
-              $scope.user.key = $scope.macRef.child('sessions').child(session.val()).push($scope.user).key();
-              localStorage.setItem('user', JSON.stringify($scope.user));
-              $scope.to('game');
+              alert(4);
+              $scope.user.session = 0;alert(5);
+              $scope.user.key = $scope.macRef.child('sessions').child(0).push($scope.user).key();alert(6);
+              localStorage.setItem('user', JSON.stringify($scope.user));alert(7);
+              $scope.to('game');alert(8);
             })
-          })
         }
       }
     })
@@ -389,7 +406,7 @@ angular.module('starter.controllers', [])
                   " ATLETISMO "
                 ],
                 "correct": " JUDO ",
-                "text": " EN QUE DEPORTE SE HAN GANADO LAS PRIMERAS MEDALLAS ISRAELÍES EN LA HISTORIA EN BARCELONA 1992 "
+                "text": " EN QUE DEPORTE SE HAN GANADO LAS PRIMERAS MEDALLAS ISRAELÍES EN LA HISTORIA"
               },
               {
                 "answers": [
@@ -608,6 +625,7 @@ angular.module('starter.controllers', [])
           angular.forEach(cards, function(val){
             val.key = i;
             var rand = Math.floor(Math.random() * 3);
+            val.real = val.answers;
             val.answers.splice(rand, 0, val.correct);
             val.correct = rand;
             i++;
@@ -647,27 +665,55 @@ angular.module('starter.controllers', [])
       };
       $scope.didntAnswer = true;
       $scope.i = 0;
-      $scope.goAway = function (countCall, index, reply, card, question) {
-        if($scope.didntAnswer){
+      $scope.goAway = function (countCall, card, reply, ble, question) {
+        if($scope.didntAnswer || ble){
           $scope.howmuch--;
           $scope.didntAnswer = false;
+          var correct = false;
+          var replied = reply;
+          if(card){
+            if(card.correct == 0){
+              if(replied == 0)
+                replied = 2;
+              else
+                replied--;
+            }else if(card.correct == 1){
+              if(replied == 1)
+                replied = 2;
+              else if(reply !=0)
+                replied--
+            }
+            correct = card.correct == replied;
+            if(correct){
+              var sound = new Media("/android_asset/www/sounds/acierto.wav");
+              sound.play();
+            }else{
+              var sound = new Media("/android_asset/www/sounds/error1.wav");
+              sound.play();
+            }
+          }else{
+            var sound = new Media("/android_asset/www/sounds/error1.wav");
+            sound.play();
+          }
+
           $scope.questionsRef.child('sessions').child($scope.user.session).child($scope.user.key).child('answers')
               .child($scope.i).set({
                 'time': $scope.seconds,
-                'correct':card.correct == reply
+                'correct':correct
               });
-          var copyCard = angular.extend([], card.answers);
-          copyCard.splice(card.correct,1);
-          var reply = card.correct = reply ? 2 : reply;
-          $scope.questionsRef.child('questions').child(question).child('reply').child(reply)
-              .transaction(function(currentData) {
-                if(currentData===null){
-                  return 1;
-                }else{
-                  return currentData+1;
+          if(card){
+            $scope.questionsRef.child('questions').child(question).child('reply').child(replied)
+                .transaction(function(currentData) {
+                  if(currentData===null){
+                    return 1;
+                  }else{
+                    currentData++;
+                    return currentData;
+                  }
                 }
-              }
             );
+          }
+
           $scope.i++;
           $scope.seconds = $scope.saveSeconds;
           clearTimeout($scope.timeOut);
@@ -695,10 +741,12 @@ angular.module('starter.controllers', [])
                 type: "success",
                 showCancelButton: false,
                 confirmButtonText: "Ok",
-                closeOnConfirm: true
-              }, function() {
-                $location.path('menu');
+                showConfirmButton: false,
+                timer: 2500,
               });
+              $timeout(function(){
+                $location.path('menu');
+              }, 2500)
             }
             return $scope.howmuch > 0;
           }, 1500);
@@ -711,13 +759,17 @@ angular.module('starter.controllers', [])
         function tick() {
           $scope.seconds--;
           $('.progress-pie-chart').data('percent', $scope.seconds);
-
-
           drawCircle();
+          if($scope.seconds>0 && $scope.seconds<6){
+            if($scope.sound)
+              $scope.sound.stop();
+            $scope.sound = new Media("/android_asset/www/sounds/tiempo.wav");
+            $scope.sound.play();
+          }
           if( $scope.seconds > 0 ) {
             $scope.timeOut = setTimeout(tick, 150);
           } else {
-            var again = $scope.goAway(false, false);
+            var again = $scope.goAway(false, null,3, true);
             if(again)
               $scope.timeOut = setTimeout(tick, 150);
           }

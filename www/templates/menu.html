@@ -1,5 +1,5 @@
 <ion-view hide-nav-bar="true">
-  <ion-content has-bouncing="true">
+  <ion-content has-bouncing="false" scroll="false">
     <div class="bekeff">
       <span class="font-amatic">
         Bekeff Hajshara
@@ -8,13 +8,9 @@
     <div class="logo">
       <img class="logo" src="img/maccabi.png">
     </div>
-    <!--<div class="marquee" ng-if="getHeight()>450">
-      <ul>
-        <li ng-repeat="item in items">
-          <img src="{{item.src}}" height="75px">
-        </li>
-      </ul>
-    </div>-->
+    <div id="owl-demo" class="owl-carousel owl-theme" ng-click="to('gallery')">
+      <div  ng-repeat="item in items" class="owli-item"><img src="{{item.src}}"></div>
+    </div>
     <div class="buttons-bekeff">
       <div class="center-buttons row">
         <div class="col-80 col-offset-10">
