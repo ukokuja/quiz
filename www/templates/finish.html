@@ -6,18 +6,20 @@
       </span>
     </div>
     <div class="finish-data">
-      <span class="">
+      <div class="littlebitofpadding">
+        <span class="">
         Completa los datos para empezar a jugar:
       </span>
-      <div class="list list-inset">
-        <label class="item item-input">
-          <input type="text" placeholder="Nombre y apellido" ng-model="user.name">
-        </label>
-      </div>
-      <div class="list list-inset">
-        <label class="item item-input">
-          <input type="email" placeholder="Email" ng-model="user.mail">
-        </label>
+        <div class="list list-inset">
+          <label class="item item-input">
+            <input type="text" placeholder="Nombre y apellido" ng-model="user.name">
+          </label>
+        </div>
+        <div class="list list-inset">
+          <label class="item item-input">
+            <input type="email" placeholder="Email" ng-model="user.mail">
+          </label>
+        </div>
       </div>
       <div class="pictureContainer" ng-if="user.image">
         <img ng-src="{{user.image}}">

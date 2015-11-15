@@ -24,6 +24,7 @@ button{
   height: 62% !important;
   background: url('../img/flag.png') no-repeat center;
 }
+
 .card-help{
   position: fixed;
   top: 75%;
@@ -66,6 +67,13 @@ button{
   background: url('../img/texture.png');
   background-size: cover;
 }
+.scroll-content .slider-slide{
+  text-align: center;
+}
+.scroll-content .slider-slide iframe{
+  height: 86%;
+  width: 97%;
+}
 .default-title{
   display: none !important;
 }
@@ -76,10 +84,15 @@ button{
 }
 .pictureContainer{
   text-align: center;
+-ms-transform: rotate(90deg); /* IE 9 */
+  -webkit-transform: rotate(90deg); /* Safari */
+  transform: rotate(90deg);
 }
 .pictureContainer img{
-  width:75%;
+  width:60%;
+  max-width: 350px;
   text-align: center;
+  margin-bottom: 10px;
 }
 
 @-webkit-keyframes loop {
@@ -145,4 +158,11 @@ button{
   width: 75px;
   height: 75px;
   padding: 3px;
+}
+.littlebitofpadding{
+  margin-bottom: 80px;
+}
+
+.text-black{
+  color: #444 !important;
 }

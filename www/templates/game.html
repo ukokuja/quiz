@@ -3,7 +3,7 @@
     <div class="row">
       <div class="card-position">
         <div class="card">
-          <div class="item item-text-wrap question">
+          <div class="item item-text-wrap question" ng-style="giveQuesStyle()">
             {{giveMeQuestion(cards[selected].text)}}
           </div>
         </div>
@@ -13,26 +13,28 @@
       <swipe-card on-card-swipe="cardSwiped()" id="start-card">
         Desliza hacia abajo para empezar!
       </swipe-card>
-      <swipe-card ng-repeat="card in cards" on-card-swipe="cardDestroyed($index)" ng-if="selected == $index">
+      <swipe-card ng-repeat="card in cards | limitTo: howmuch" on-card-swipe="cardDestroyed($index)" ng-if="selected == $index">
         <div style="height: 100%;">
           <div class="image image-question">
             <img ng-src="img/questions/{{cards[selected].key}}.jpg" ng-style="giveMeStyle()">
           </div>
           <div class="buttons-questions">
-            <button ng-repeat="answer in card.answers"  class="button" ng-class="{'button-stable': didntAnswer, 'button-balanced': !didntAnswer && $index==card.correct, 'button-assertive': !didntAnswer && $index!=card.correct && $index==reply}" ng-click="reply=$index;goAway(false, card, reply,false , card.key);">{{answer}}</button>
+            <button  ng-repeat="answer in card.answers" id="answer-{{$index}}-{{card.key}}" class="button" ng-class="{'button-dark text-black': concatHelp($index, selected),'button-stable': didntAnswer, 'button-balanced': !didntAnswer && $index==card.correct, 'button-assertive': !didntAnswer && $index!=card.correct && $index==reply}" ng-click="reply=$index;goAway(false, card, reply,false , card.key);">{{answer}}
+              <span id="help-{{$index}}-{{card.key}}"></span>
+            </button>
           </div>
         </div>
       </swipe-card>
     </swipe-cards>
-    <div class="progress-pie-chart" data-start-time="150" data-percent="150" ng-show="gameStarted">
+    <div class="progress-pie-chart" data-start-time="100" data-percent="100" ng-show="gameStarted">
       <div class="ppc-progress">
         <div class="ppc-progress-fill"></div>
       </div>
     </div>
     <div class="row">
       <div class="card-help">
-        <button class="button button-royal">Pedir ayuda</button>
-        <button class="button button-royal">Consultar a los compañeros</button>
+        <button class="button button-royal" ng-click="ayuda()" ng-disabled="user.ayuda">Pedir ayuda</button>
+        <button class="button button-royal" ng-click="companeros()" ng-disabled="user.companeros">Consultar a los compañeros</button>
         <!--<button class="button button-royal">Denunciar pregunta</button>-->
       </div>
     </div>

@@ -2,8 +2,8 @@
   'use strict';
 
   angular
-    .module('ion-gallery', ['templates'])
-    .directive('ionGallery',ionGallery);
+      .module('ion-gallery', ['templates'])
+      .directive('ionGallery',ionGallery);
 
   ionGallery.$inject = ['$ionicPlatform','ionGalleryData','ionGalleryConfig'];
 
@@ -57,8 +57,8 @@
   'use strict';
 
   angular
-    .module('ion-gallery')
-    .provider('ionGalleryConfig',ionGalleryConfig);
+      .module('ion-gallery')
+      .provider('ionGalleryConfig',ionGalleryConfig);
 
   ionGalleryConfig.$inject = [];
 
@@ -83,8 +83,8 @@
   'use strict';
 
   angular
-    .module('ion-gallery')
-    .service('ionGalleryData',ionGalleryData);
+      .module('ion-gallery')
+      .service('ionGalleryData',ionGalleryData);
 
   ionGalleryData.$inject = ['ionGalleryConfig'];
 
@@ -174,8 +174,8 @@
   'use strict';
 
   angular
-    .module('ion-gallery')
-    .directive('ionImageScale',ionImageScale);
+      .module('ion-gallery')
+      .directive('ionImageScale',ionImageScale);
 
   ionImageScale.$inject = [];
 
@@ -219,8 +219,8 @@
   'use strict';
 
   angular
-    .module('ion-gallery')
-    .directive('ionRowHeight',ionRowHeight);
+      .module('ion-gallery')
+      .directive('ionRowHeight',ionRowHeight);
 
   ionRowHeight.$inject = [];
 
@@ -234,14 +234,14 @@
     function link(scope, element, attrs) {
 
       scope.$watch(
-        function(){
-          return element[0].offsetWidth;
-        },
-        function(newValue){
-          if(newValue > 0){
-            element.css('height',newValue * parseInt(scope.$parent.responsiveGrid)/100 + 'px');
-          }
-        });
+          function(){
+            return element[0].offsetWidth;
+          },
+          function(newValue){
+            if(newValue > 0){
+              element.css('height',newValue * parseInt(scope.$parent.responsiveGrid)/100 + 'px');
+            }
+          });
     }
   }
 })();
@@ -249,8 +249,8 @@
   'use strict';
 
   angular
-    .module('ion-gallery')
-    .directive('ionSlideAction',ionSlideAction);
+      .module('ion-gallery')
+      .directive('ionSlideAction',ionSlideAction);
 
   ionSlideAction.$inject = ['$ionicGesture','$timeout'];
 
@@ -323,8 +323,8 @@
   'use strict';
 
   angular
-    .module('ion-gallery')
-    .directive('ionSlider',ionSlider);
+      .module('ion-gallery')
+      .directive('ionSlider',ionSlider);
 
   ionSlider.$inject = ['$ionicModal','ionGalleryData','$ionicPlatform','$timeout','$ionicScrollDelegate'];
 
