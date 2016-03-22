@@ -2,17 +2,17 @@
   <ion-content has-bouncing="true">
     <div class="bekeff">
       <span class="font-amatic">
-        Bekeff Hajshara
+        Macabi Latinoamerica
       </span>
     </div>
     <div class="finish-data">
       <div class="littlebitofpadding">
         <span class="">
         Completa los datos para empezar a jugar:
-      </span>
-        <div class="list list-inset">
-          <label class="item item-input">
-            <input type="text" placeholder="Nombre y apellido" ng-model="user.name">
+        </span>
+        <div class="list list-inset" ng-class="{'disabled':user.name}">
+          <label class="item item-input" ng-class="{'disabled':user.name}">
+            <input type="text" placeholder="Nombre y apellido" ng-model="user.name" ng-disabled="user.name" ng-class="{'disabled':user.name}">
           </label>
         </div>
         <div class="list list-inset">

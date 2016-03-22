@@ -1,0 +1,25 @@
+<ion-modal-view>
+    <ion-header-bar class="header-positive-900">
+        <h1 class="title">Videos</h1>
+        <div class="button button-clear" ng-click="closeModal()">
+        <span class="icon ion-close">
+        </span>
+        </div>
+    </ion-header-bar>
+    <ion-content class="scroll-content" has-bouncing="false" scroll="false">
+        <ion-slide-box on-slide-changed="slideHasChanged($index)">
+            <ion-slide>
+                <iframe  src="https://www.youtube-nocookie.com/embed/iJ9nwymJ4gc?rel=0&amp;controls=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+            </ion-slide>
+            <ion-slide>
+                <iframe  src="https://www.youtube-nocookie.com/embed/8ZbgrbXixnw?rel=0&amp;controls=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+            </ion-slide>
+            <ion-slide>
+                <iframe  src="https://www.youtube-nocookie.com/embed/W5MpoDCexOA?rel=0&amp;controls=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+            </ion-slide>
+            <ion-slide>
+                <iframe  src="https://www.youtube-nocookie.com/embed/QJk1ulM1RgE?rel=0&amp;controls=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+            </ion-slide>
+        </ion-slide-box>
+    </ion-content>
+</ion-modal-view>

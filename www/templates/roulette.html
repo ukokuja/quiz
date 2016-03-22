@@ -1,0 +1,60 @@
+<ion-view hide-nav-bar="true">
+  <ion-content has-bouncing="false">
+    <div class="player" style="  display: -webkit-inline-box;">
+      <img class="image" src="http://graph.facebook.com/v2.5/{{params.id}}/picture?width=75&height=75&type=square"/>
+      <div class="macabi">
+        <img src="img/font/M3.png" ng-style="giveMacabiStyle(contrincante.m)">
+        <img src="img/font/A13.png" ng-style="giveMacabiStyle(contrincante.a)">
+        <img src="img/font/C3.png" ng-style="giveMacabiStyle(contrincante.c)">
+        <img src="img/font/A3.png" style="margin-left: -33px;" ng-style="giveMacabiStyle(contrincante.aa)">
+        <img src="img/font/B3.png" ng-style="giveMacabiStyle(contrincante.b)">
+        <img src="img/font/I3.png" style="  margin: -1px;" ng-style="giveMacabiStyle(contrincante.i)">
+      </div>
+    </div>
+    <div class="bekeff">
+      <span class="font-amatic">
+        Vs
+      </span>
+    </div>
+    <div class="player" style="  display: -webkit-inline-box; float: right">
+      <div class="macabi">
+        <img src="img/font/M3.png" ng-style="giveMacabiStyle(params.m)">
+        <img src="img/font/A13.png" ng-style="giveMacabiStyle(params.a)">
+        <img src="img/font/C3.png" ng-style="giveMacabiStyle(params.c)">
+        <img src="img/font/A3.png" style="margin-left: -33px;" ng-style="giveMacabiStyle(params.aa)">
+        <img src="img/font/B3.png" ng-style="giveMacabiStyle(params.b)">
+        <img src="img/font/I3.png" style="  margin: -1px;" ng-style="giveMacabiStyle(params.i)">
+      </div>
+      <img class="image2" src="http://graph.facebook.com/v2.5/{{usuario.id}}/picture?width=75&height=75&type=square" />
+    </div>
+
+    <div ng-if="params.i == ''" class="row">
+      <div class="col">
+        <h1 class="font-amatic normal">
+          Rueda la ruleta
+        </h1>
+        <div class="roulette_container" ng-click="start()" ng-show="ready">
+          <div class="roulette">
+            <img ng-repeat="item in categories" ng-src="img/categories/{{item.img}}"/>
+          </div>
+        </div>
+        <div class="row" ng-if="choosedCategory>=0">
+          <div class="col">
+            <h3 class="normal">Te toco la categoria {{categories[choosedCategory].description}}!</h3>
+            <button class="button button-balanced button-full" ng-click="continuar()">
+              Continuar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row" ng-if="params.i != ''">
+      <div class="col">
+        <button class="button button-balanced button-full" ng-click="back()">
+          Finalizar
+        </button>
+      </div>
+    </div>
+
+  </ion-content>
+</ion-view>

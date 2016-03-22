@@ -108,6 +108,7 @@
   font-family: 'Raleway', sans-serif;
   color: #fff;
   font-weight: bold;
+  margin-top: -15px;
 }
 .buttons-questions button:first-child{
   margin-top: 5px;

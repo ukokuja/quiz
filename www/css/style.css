@@ -20,14 +20,14 @@ button{
   width: 70%;
   height: 100%;
 }
-.card{
+.gamecard .card{
   height: 62% !important;
   background: url('../img/flag.png') no-repeat center;
 }
 
 .card-help{
   position: fixed;
-  top: 75%;
+  top: 80%;
   height: 30%;
   width: 100%;
   text-align: center;
@@ -64,7 +64,7 @@ button{
   top: 72%;
 }
 .scroll-content{
-  background: url('../img/texture.png');
+  background: url('../img/texture.png') no-repeat center;
   background-size: cover;
 }
 .scroll-content .slider-slide{
@@ -84,15 +84,15 @@ button{
 }
 .pictureContainer{
   text-align: center;
--ms-transform: rotate(90deg); /* IE 9 */
-  -webkit-transform: rotate(90deg); /* Safari */
-  transform: rotate(90deg);
+  padding: 20px;
 }
 .pictureContainer img{
-  width:60%;
-  max-width: 350px;
   text-align: center;
-  margin-bottom: 10px;
+  border-radius: 400px;
+  border: 2px solid #FFF;
+  -webkit-background-clip: padding-box;
+  -moz-background-clip: padding;
+  background-clip: padding-box;
 }
 
 @-webkit-keyframes loop {
@@ -160,9 +160,82 @@ button{
   padding: 3px;
 }
 .littlebitofpadding{
-  margin-bottom: 80px;
+  margin-bottom: 10px;
 }
 
 .text-black{
   color: #444 !important;
+}
+.roulette_container img{
+  margin: 0px auto;
+}
+.roulette_container .roulette{
+  /*height:87px !important;*/
+}
+.normal{
+  color: #FFF;
+  text-align: center;
+}
+.roulette-inner img {
+  border-radius: 100px;
+  background-color: #FFF;
+}
+.roulette_container{
+}
+.macabi img{
+  height: 75px;
+  margin: -2px;
+}
+.macabi img.opaque{
+  opacity: 1 !important;
+}
+.macabi{
+  display: block;
+  text-align: center
+  -ms-transform: scale(0.7,0.7); /* IE 9 */
+  -webkit-transform: scale(0.7,0.7); /* Safari */
+  transform: scale(0.7,0.7);
+}
+.player img.image{
+  -webkit-border-radius: 100px;
+  -moz-border-radius: 100px;
+  border-radius: 100px;
+  width:50px;
+  margin: 20px;
+  padding-top: 2px;
+}
+.player img.image2{
+  -webkit-border-radius: 100px;
+  -moz-border-radius: 100px;
+  border-radius: 100px;
+  width:50px;
+  margin-left: -20px;
+  padding-bottom: 2px;
+}
+
+.animateIf.ng-enter, .animateIf.ng-leave {
+  transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.3s;
+  -webkit-transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.3s;
+  -moz-transition: all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.3s;
+}
+
+.animateIf.ng-enter,
+.animateIf.ng-leave.ng-leave-active {
+  opacity:0;
+}
+
+.animateIf.ng-leave,
+.animateIf.ng-enter.ng-enter-active {
+  opacity:1;
+}
+.slider-slide .normal{
+  margin:0;
+}
+.realFriends{
+  -webkit-border-radius: 100px;
+  -moz-border-radius: 100px;
+  border-radius: 100px;
+  width:50px;
+  background-color: #ffd700;
+  padding: 2px;
 }
