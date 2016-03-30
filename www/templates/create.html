@@ -1,73 +1,26 @@
 <ion-view hide-nav-bar="true">
-  <ion-content has-bouncing="true" scroll="true">
+  <ion-content has-bouncing="no" scroll="no">
     <tab-slide-box tab='1'>
       <div class="tsb-icons">
         <div class="tsb-ic-wrp">
-          <a href="javascript:;" class="ion-earth"></a>
+          <a href="javascript:;" class="ion-earth" ng-click='sawNotifications()'></a>
           <a href="javascript:;" class="ion-ios-game-controller-b"></a>
-          <a href="javascript:;" class="ion-android-chat"></a>
+          <a href="javascript:;" class="ion-social-facebook"></a>
         </div>
       </div>
       <ion-slide-box show-pager="false" on-slide-changed="slideHasChanged($index)">
         <ion-slide>
           <ul class="timeline">
-            <li>
-              <img src="http://graph.facebook.com/v2.5/{{usuario.id}}/picture?width=75&height=75&type=square" alt="" class="timeline-thumb">
+            <li ng-click='notificationClick(n)' ng-repeat='n in notifications' ng-if="(n.starter && n.retarFinished) || (!n.starter || !n.i) || (!n.starter && n.i)">
+              <img src="http://graph.facebook.com/v2.5/{{n.id}}/picture?width=75&height=75&type=square" alt="" class="timeline-thumb">
               <div class="timeline-item">
-                <p>Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-                  proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                </p>
+                <p ng-if='n.starter && n.retarFinished'>{{n.name}} ha finalizado la partida! Click ahi para ver el resultado</p>
+                <p ng-if='!n.starter || !n.i'>{{n.name}} te ha retado a jugar</p>
+                <p ng-if='!n.starter && n.i'>Partida con {{n.name}} finalizada. Ver los resultados</p>
                 <div class="timeline-stats">
-                  <i class="ion-heart"></i> 2,450
-                  <span class="pos-absolute-right"><i class="ion-ios-clock"></i> 2 mins ago</span>
-                </div>
-              </div>
-            </li>
-            <li>
-              <img src="http://graph.facebook.com/v2.5/{{usuario.id}}/picture?width=75&height=75&type=square" alt="" class="timeline-thumb">
-              <div class="timeline-item">
-                <p>Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-                  proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                </p>
-                <div class="timeline-stats">
-                  <i class="ion-heart"></i> 2,450
-                  <span class="pos-absolute-right"><i class="ion-ios-clock"></i> 2 mins ago</span>
-                </div>
-              </div>
-            </li>
-            <li>
-              <img src="http://graph.facebook.com/v2.5/{{usuario.id}}/picture?width=75&height=75&type=square" alt="" class="timeline-thumb">
-              <div class="timeline-item">
-                <p>Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-                  proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                </p>
-                <div class="timeline-stats">
-                  <i class="ion-heart"></i> 2,450
-                  <span class="pos-absolute-right"><i class="ion-ios-clock"></i> 2 mins ago</span>
-                </div>
-              </div>
-            </li>
-            <li>
-              <img src="http://graph.facebook.com/v2.5/{{usuario.id}}/picture?width=75&height=75&type=square" alt="" class="timeline-thumb">
-              <div class="timeline-item">
-                <p>Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-                  proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                </p>
-                <div class="timeline-stats">
-                  <i class="ion-heart"></i> 2,450
-                  <span class="pos-absolute-right"><i class="ion-ios-clock"></i> 2 mins ago</span>
-                </div>
-              </div>
-            </li>
-            <li>
-              <img src="http://graph.facebook.com/v2.5/{{usuario.id}}/picture?width=75&height=75&type=square" alt="" class="timeline-thumb">
-              <div class="timeline-item">
-                <p>Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-                  proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                </p>
-                <div class="timeline-stats">
-                  <i class="ion-heart"></i> 2,450
-                  <span class="pos-absolute-right"><i class="ion-ios-clock"></i> 2 mins ago</span>
+                  <span ng-if='isNew(n.date)'>Nuevo</span>
+                  <span>&nbsp;</span>
+                  <span class="pos-absolute-right"><i class="ion-ios-clock"></i>{{getFromNow(n.date)}}</span>
                 </div>
               </div>
             </li>
@@ -76,25 +29,30 @@
         <ion-slide>
           <div class="">
             <br>
-            <h3 class="normal" ng-if="friends">
-              Juega con tus amigos
+            <div class="row" ng-if="loadingFriends">
+              <div class="col"><i class="icon ion-loading-a"></i> <h3 class="normal">Cargando..</h3></div>
+            </div>
+            <div ng-if="!loadingFriends">
+              <h3 class="normal" ng-if="friends">
+                Juega con tus amigos
+                <br>
+                <small class="normal" ng-if="friends">
+                  <i class="icon ion-ios-help"></i> Estos son solo los que usan la aplicacion!
+                </small>
+              </h3>
+              <h4 class="normal" ng-if="!friends">
+                Tus amigos no estan disponibles :(
+              </h4>
               <br>
-              <small class="normal" ng-if="friends">
-                <i class="icon ion-ios-help"></i> Estos son solo los que usan la aplicacion!
-              </small>
-            </h3>
-            <h4 class="normal" ng-if="!friends">
-              Tus amigos no estan disponibles :(
-            </h4>
-            <br>
-            <h5 class="normal" ng-if="friends">
-              Haz click en su foto para retarlos!
-            </h5>
-            <br>
-            <div ng-style="friendsStyle">
-              <div class="row" ng-repeat="rows in friends" style="text-align: center;">
-                <div class="col col-33" ng-repeat="friend in rows" ng-click="retar(friends[$parent.$index][$index])">
-                  <img class="realFriends" src="http://graph.facebook.com/v2.5/{{friend.id}}/picture?width=75&height=75&type=square"/>
+              <h5 class="normal" ng-if="friends">
+                Haz click en su foto para retarlos!
+              </h5>
+              <br>
+              <div ng-style="friendsStyle">
+                <div class="row" ng-repeat="rows in friends" style="text-align: center;">
+                  <div class="col col-33" ng-repeat="friend in rows" ng-click="retar(friends[$parent.$index][$index])">
+                    <img class="realFriends" src="http://graph.facebook.com/v2.5/{{friend.id}}/picture?width=75&height=75&type=square"/>
+                  </div>
                 </div>
               </div>
             </div>
@@ -114,21 +72,25 @@
           </div>
         </ion-slide>
         <ion-slide>
-          <div class="list card" ng-repeat="card in maccabi.feed">
-            <div class="item item-avatar">
-              <img ng-src="{{maccabi.info[0].images[0].source}}">
-              <h2>{{card.from.name}}</h2>
-              <p>{{getFromNow(card.created_time)}}</p>
-            </div>
+          <br>
+          <br>
+          <ion-content class="contentNo">
+            <div class="list card" ng-repeat="card in maccabi.feed">
+              <div class="item item-avatar">
+                <img ng-src="{{maccabi.info[0].images[0].source}}">
+                <h2>{{card.from.name}}</h2>
+                <p>{{getFromNow(card.created_time)}}</p>
+              </div>
 
-            <div class="item item-body">
-              <img class="full-image" ng-src="{{card.full_picture}}">
-              <p>
-                {{card.message}}
-              </p>
+              <div class="item item-body">
+                <img class="full-image" ng-src="{{card.full_picture}}">
+                <p>
+                  {{card.message}}
+                </p>
+              </div>
             </div>
-          </div>
-        </ion-slide>
+          </ion-content>
+          </ion-slide>
 
       </ion-slide-box>
     </tab-slide-box>

@@ -67,6 +67,9 @@ button{
   background: url('../img/texture.png') no-repeat center;
   background-size: cover;
 }
+.contentNo.scroll-content{
+  background: none !important;
+}
 .scroll-content .slider-slide{
   text-align: center;
 }
@@ -238,4 +241,8 @@ button{
   width:50px;
   background-color: #ffd700;
   padding: 2px;
+}
+#facebookContainer{
+  max-height:500px;
+  overflow: auto;
 }

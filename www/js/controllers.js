@@ -1,66 +1,14 @@
 angular.module('starter.controllers', [])
 
 .controller('DashCtrl', function($scope) {})
-.controller('CreateCtrl', function($scope,$state, $cordovaFacebook,$ionicSlideBoxDelegate, $timeout,ionicMaterialInk,ionicMaterialMotion, $http) {
-  var url1 = "https://graph.facebook.com/oauth/access_token?client_id=301006363311722&client_secret=8dc1cddd7f4d028582d8eac74db18348&grant_type=client_credentials";
-  var url2 = "https://graph.facebook.com/v2.2/191030644326196/feed?access_token=";
-  var url3 = "https://graph.facebook.com/v2.2/191030644326196/photos?access_token=";
-  $scope.maccabi = {};
-  $http.get(url1)
-  .then(function(success){
-    $http.get(url2+(success.data.substr(13)+"&fields=full_picture,message,from"))
-    .then(function(success2){
-      $timeout(function(){$scope.maccabi.feed = success2.data.data});
-    });
-    $http.get(url3+(success.data.substr(13)))
-    .then(function(success3){
-      console.log(success3.data.data);
-      $timeout(function(){$scope.maccabi.info = success3.data.data});
-    });
-  });
-  ionicMaterialInk.displayEffect();
-  ionicMaterialMotion.ripple();
-  $timeout(function(){$ionicSlideBoxDelegate.slide(1);}, 2000);
-  var inner  = window.innerHeight/ 2.5;
-  $scope.friendsStyle = {
-    height: inner+'px',
-    'max-height':inner+50+'px',
-    overflow: 'auto'
-  };
-  $cordovaFacebook.api("me/friends", [])
-  .then(function(success) {
-    $cordovaFacebook.api("me", ["email"])
-    .then(function(success) {
-      $scope.userRef.update({
-        id: success.id,
-        name: success.name,
-        mail: (success.mail || {}),
-        gender: success.gender || {},
-        timezone: success.timezone || {},
-        verified: success.verified || {},
-        first_name: success.first_name,
-        last_name: success.last_name,
-        locale: success.locale,
-      });
-    }, function (error) {
-    });
-    var friends = success.data;
-    $scope.userRef.update({friends: friends||{}});
-    function chunk(arr, size) {
-      var newArr = [];
-      for (var i=0; i<arr.length; i+=size) {
-        newArr.push(arr.slice(i, i+size));
-      }
-      return newArr;
-    }
-
-    $scope.friends = chunk(friends, 3);
-  }, function (error) {
-    // error
-  });
-})
 .controller('RouletteCtrl', function($scope, $stateParams,$timeout,$state) {
   $scope.contrincante = {}
+  if(!$scope.userGameRef.on){
+    $scope.userGameRef = $scope.userRef.child('games').child($stateParams.gameId);
+  }
+  if(!$scope.retarGameRef.on){
+    $scope.retarGameRef = $scope.macRef.child($stateParams.id).child('games').child($stateParams.gameRetarId);
+  }
   $scope.retarGameRef.on('value', function(game){
     $timeout(function(){
       $scope.contrincante = game.val();
@@ -68,6 +16,9 @@ angular.module('starter.controllers', [])
   });
   $scope.params = $stateParams;
   $scope.userGameRef.update($scope.params);
+  if($scope.params.i && $scope.params.i != ''){
+    $scope.retarGameRef.update({retarFinished:true});
+  }
   $scope.categories = [
     {description:'historia', img:'history.png'},
     {description:'geografía', img:'geography.png'},
@@ -113,7 +64,7 @@ angular.module('starter.controllers', [])
     $state.go('session.game', extend);
   }
 })
-.controller('SessionCtrl', function($scope, $cordovaFacebook, $state, $timeout) {
+.controller('SessionCtrl', function($scope, $cordovaFacebook, $state, $timeout,$http) {
   $scope.macRef = new Firebase('https://maccabi.firebaseio.com/');
   $scope.userRef = {};
   $scope.userGameRef = {};
@@ -135,10 +86,12 @@ angular.module('starter.controllers', [])
           .then(function(success) {
             createUser(success.authResponse.userID);
           }, function (error) {
+            console.log(JSON.stringify(error));
             // error
           });
         }
       }, function (error) {
+        console.log(JSON.stringify(error));
         // error
       });
     })
@@ -151,13 +104,13 @@ angular.module('starter.controllers', [])
           createUser(success.authResponse.userID);
         }
       }, function (error) {
+        console.log(JSON.stringify(error));
         // error
       });
     })
   }
   $scope.retar = function(user){
-    console.log(JSON.stringify(user));
-    console.log(JSON.stringify($scope.usuario));
+
     swal({
       text: "Queres desafiar a " + user.name + "?",
       title: "Nueva partida",
@@ -169,6 +122,7 @@ angular.module('starter.controllers', [])
     }, function() {
       $scope.userGameRef = $scope.userRef.child('games').push({
         id:user.id,
+        name: user.name || {},
         date: Firebase.ServerValue.TIMESTAMP,
         read: true,
         starter: true
@@ -176,25 +130,46 @@ angular.module('starter.controllers', [])
       $scope.retarRef = new Firebase('https://maccabi.firebaseio.com/users/'+user.id);
       $scope.retarGameRef = $scope.retarRef.child('games').push({
         id:$scope.usuario.id,
+        name: $scope.usuario.name || {},
         date: Firebase.ServerValue.TIMESTAMP
       });
-      $state.go('session.roulette', {name:user.name ,id:user.id})
+      $scope.retarGameRef.update({gameId: $scope.retarGameRef.key(), gameRetarId: $scope.userGameRef.key()})
+      $scope.userGameRef.update({gameRetarId: $scope.retarGameRef.key(), gameId: $scope.userGameRef.key()})
+      $scope.retarRef.once('value', function(snapRetar){
+        var m = {
+          message: $scope.usuario.first_name + " te ha retado. Lo venceras?",
+          title: "Nueva partida",
+          user: user.id,
+          pushId: snapRetar.val().pushId,
+          image: ''
+        };
+        var k = $scope.macRef.child('message').push(m);
+        $http.get("https://zapier.com/hooks/catch/651706/2cr4zf/"+toUrlParams(m)).then(function(success){
+          k.update({success:success.data});
+        });
+        $state.go('session.roulette', {gameId: $scope.userGameRef.key(),gameRetarId: $scope.retarGameRef.key(),name:user.name ,id:user.id})
+      })
     });
   }
   $scope.to = function(to){
     $state.go(to);
   }
   $scope.getFromNow = function(p){
-    console.log(p);
-    return moment(p).fromNow();
+    return moment(p).locale("es").fromNow();
   }
   function createUser(id){
-    $scope.usuario = {id :id};
+    $scope.usuario = {};
     $scope.userRef = new Firebase('https://maccabi.firebaseio.com/users/'+id);
+    $scope.userRef.onDisconnect().update({last: Firebase.ServerValue.TIMESTAMP});
     $scope.userRef.update({
-      last: Firebase.ServerValue.TIMESTAMP
+      pushId: localStorage.getItem("pushId"),
+      id: id
     });
-    localStorage.setItem('usuario', JSON.stringify($scope.usuario));
+    $scope.userRef.once('value', function(us){
+      $scope.usuario = us.val();
+      localStorage.setItem('usuario', JSON.stringify($scope.usuario));
+    });
+
     $scope.to('session.create');
   }
   $scope.usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
@@ -233,9 +208,6 @@ angular.module('starter.controllers', [])
   });
 })
 .controller('MenuCtrl', function($scope, $state, $timeout, $ionicModal, $cordovaFacebook) {
-  if($scope.usuario.name){
-    $state.go('session.create');
-  }
   $scope.gallery = function(){
     $state.go('gallery');
   }
@@ -286,9 +258,6 @@ angular.module('starter.controllers', [])
 
 })
 .controller('FinishCtrl', function($scope, $state, $cordovaFacebook, $rootScope) {
-  if($scope.usuario.name){
-    $state.go('session.create');
-  }
   $scope.user = {};
   $cordovaFacebook.api("me", ["email"])
   .then(function(success) {
@@ -329,13 +298,89 @@ angular.module('starter.controllers', [])
     }
   };
 })
+.controller('CreateCtrl', function($scope,$state, $cordovaFacebook,$ionicSlideBoxDelegate, $timeout, $http) {
+  var url1 = "https://graph.facebook.com/oauth/access_token?client_id=301006363311722&client_secret=8dc1cddd7f4d028582d8eac74db18348&grant_type=client_credentials";
+  var url2 = "https://graph.facebook.com/v2.2/191030644326196/feed?access_token=";
+  var url3 = "https://graph.facebook.com/v2.2/191030644326196/photos?access_token=";
+  $scope.maccabi = {};
+  $http.get(url1)
+  .then(function(success){
+    $http.get(url2+(success.data.substr(13)+"&fields=full_picture,message,from"))
+    .then(function(success2){
+      $timeout(function(){$scope.maccabi.feed = success2.data.data});
+    });
+    $http.get(url3+(success.data.substr(13)))
+    .then(function(success3){
+      console.log(success3.data.data);
+      $timeout(function(){$scope.maccabi.info = success3.data.data});
+    });
+  });
+  $timeout(function(){$ionicSlideBoxDelegate.slide(1);}, 2000);
+  var inner  = window.innerHeight/ 2.5;
+  $scope.friendsStyle = {
+    height: inner+'px',
+    'max-height':inner+50+'px',
+    overflow: 'auto'
+  };
+  $scope.loadingFriends = true;
+  $cordovaFacebook.api("me/friends", [])
+  .then(function(success) {
+    $scope.loadingFriends = false;
+    $cordovaFacebook.api("me/?fields=id,email,first_name,last_name,location,timezone,gender,locale,name", ["email"])
+    .then(function(success2) {
+      console.log(JSON.stringify(success2));
+      $scope.userRef.update({
+        id: success2.id,
+        name: success2.name,
+        mail: (success2.mail || {}),
+        gender: success2.gender || {},
+        timezone: success2.timezone || {},
+        verified: success2.verified || {},
+        first_name: success2.first_name,
+        last_name: success2.last_name,
+        locale: success2.locale,
+      });
+    }, function (error) {
+    });
+    var friends = success.data;
+    $scope.userRef.update({friends: friends||{}});
+    function chunk(arr, size) {
+      var newArr = [];
+      for (var i=0; i<arr.length; i+=size) {
+        newArr.push(arr.slice(i, i+size));
+      }
+      return newArr;
+    }
+
+    $scope.friends = chunk(friends, 3);
+  }, function (error) {
+    // error
+  });
+  $scope.notifications = {};
+  $scope.userRef.once('value', function(userSnap){
+    var val = userSnap.val();
+    $scope.notifications = val.games || {};
+  });
+  $scope.isNew = function(date){
+    return $scope.usuario.last ? $scope.usuario.last < date :true;
+  }
+  $scope.sawNotifications = function(){
+    $scope.userRef.update({last: Firebase.ServerValue.TIMESTAMP});
+  }
+  $scope.notificationClick = function(n){
+    if(n.starter && n.retarFinished){
+      $state.go('session.game',n);
+    }else{
+      $state.go('session.roulette',n);
+    }
+  }
+})
 .controller('AccountCtrl', function($scope) {
   $scope.settings = {
     enableFriends: true
   };
 })
 .controller('GameCtrl', function($scope, $ionicSwipeCardDelegate, $timeout ,$location, $stateParams, $state,$ionicLoading) {
-  $scope.usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
   $scope.$on('$destroy', function iVeBeenDismissed() {
     $scope = {};
   })
@@ -422,399 +467,6 @@ $scope.cardSwiped = function(index) {
     });
     //$scope.onlineCards = qSnap.val();
   });
-  /*$timeout(function(){
-
-  var cards = [
-  {
-  "answers": [
-  " BRASIL",
-  " URUGUAY "
-],
-"correct": " ARGENTINA ",
-"text": " EN QUE PAÍS FUE SECUESTRADO ADOLF EICHMANN POR EL MOSSAD ISRAELÍ"
-},
-{
-"answers": [
-" FAISAL HUSSEINI ",
-" MAHMUD ABÁS "
-],
-"correct": " YASIR ARAFAT ",
-"text": " EL NOMBRE COMPLETO DEL LÍDER PALESTINO QUE FIRMO LOS ACUERDOS DE OSLO CON ISAAC RABIN "
-},
-{
-"answers": [
-" LEVI ESHKOL ",
-" DAVID BEN GURIÓN "
-],
-"correct": " MOSHE SHARET ",
-"text": " EL NOMBRE DEL PRIMER MINISTRO DE RELACIONES EXTERIORES DE ISRAEL "
-},
-{
-"answers": [
-" Ninguna Es Correcta",
-" JORDANIA E IRAQ"
-],
-"correct": " EGIPTO Y SIRIA ",
-"text": " QUE PAÍSES ARABES ATACARON A ISRAEL EN LA GUERRA DE IOM KIPPUR "
-},
-{
-"answers": [
-" HANDRÉ POLLARD",
-" ELI COHEN "
-],
-"correct": " JONATHAN POLARD ",
-"text": " EL NOMBRE DEL ESPÍA ISRAELÍ QUE EEUU VA A LIBERAR DESPUES DE CASI 30 Años QUE ESTUVO PRESO "
-},
-{
-"answers": [
-" 10 ",
-" 15 "
-],
-"correct": " 11 ",
-"text": " CUANDOS DEPORTISTAS ISRAELÍES FUERON ASESINADOS POR TERRORISTAS PALESTINOS EN LOS JUEGOS OLÍMPICOS DE MUNICH 1972? "
-},
-{
-"answers": [
-" SHIMON PERES ",
-" ISAAC SHAMIR "
-],
-"correct": " MENAJEM BEGUIN ",
-"text": " EL LÍDER ISRAELÍ QUE FIRMO EL TRATADO DE PAZ CON EGIPTO EN 1979"
-},
-{
-"answers": [
-" Kayak ",
-" Judo "
-],
-"correct": " WIND SURF ",
-"text": " EN QUE DISCIPLINA ISRAEL GANO SU ÚNICA MEDALLA DE ORO"
-},
-{
-"answers": [
-" 3",
-" 2 "
-],
-"correct": " 1 ",
-"text": " CUANTAS VECES HA CLASIFICADO LA SELECCIÓN DE FÚTBOL ISRAELÍ AL MUNDIAL "
-},
-{
-"answers": [
-" 12",
-" 10 "
-],
-"correct": " 11 ",
-"text": " CUANTOS ISRAELÍES HAN GANADO HASTA HOY LOS PREMIOS NOBEL "
-},
-{
-"answers": [
-" 1967",
-" 1953 "
-],
-"correct": " 1948",
-"text": " LA DECLARACIÓN DE INDEPENDENCIA DE ISRAEL FUE EN...?"
-},
-{
-"answers": [
-" HEBRÓN ",
-" JENÍN "
-],
-"correct": " JERICÓ ",
-"text": " QUE CIUDAD CISJORDANA ES CONSIDERADO COMO , LA CIUDAD MÁS ANTIGUA DEL MUNDO "
-},
-{
-"answers": [
-" 100",
-" 75 "
-],
-"correct": " 120 ",
-"text": "CUANTOS PARLAMENTARIOS ESTAN EN LA KNESSET ISRAELI"
-},
-{
-"answers": [
-" JUDÍOS Y MUSULMANES ",
-" JUDÍOS Y CRISTIANOS "
-],
-"correct": " PERSONAS DE TODAS LAS RELIGIONES ",
-"text": " EL GOBIERNO DE ISRAEL GARANTIZA LA LIBERTAD DE RELIGIÓN PARA "
-},
-{
-"answers": [
-" 30",
-" 10 "
-],
-"correct": " 20 ",
-"text": " QUÉ PORCENTAJE DE LA POBLACIÓN DE ISRAEL NO ES JUDÍO"
-},
-{
-"answers": [
-" EGIPTO ",
-" JORDANIA "
-],
-"correct": " SIRIA ",
-"text": " LOS ALTOS DEL GOLÁN FORMA UNA BARRERA NATUAL ENTRE ISRAEL Y ..."
-},
-{
-"answers": [
-" ASESINAR A LOS TERRORISTAS ÁRABES ",
-" ESPIAR A LOS BRITÁNICOS "
-],
-"correct": " GESTIONAR LA INMIGRACIÓN ILEGAL ",
-"text": " EL MOSSAD FUE CREADO ORIGINALMENTE PARA ..."
-},
-{
-"answers": [
-" NINGUNA DE LAS ANTERIORES ",
-" UNA COALICIÓN DE ESTADOS MUSULMANES EN EL MEDIO ORIENTE "
-],
-"correct": " LA LÍNEA DE ARMISTICIO DE 1949 ENTRE ISRAEL Y JORDANIA ",
-"text": " LA 'LÍNEA VERDE' SE REFIERE A ..."
-},
-{
-"answers": [
-" YITZHAK RABIN ",
-" SHIMON PERES "
-],
-"correct": " TODAS LAS ANTERIORES ",
-"text": " QUE LÍDERES ISRAELÍES HAN GANADO EL PREMIO NOBEL DE LA PAZ MUNDIAL? "
-},
-{
-"answers": [
-"DOR NINI ",
-" YOHAI KALANGEL "
-],
-"correct": " GUILAD SCHALIT ",
-"text": " EL SOLDADO ISRAELI QUE FUE SECOSTRADO POR HAMAS Y LIBERADO EN EL 2011  A CAMBIO DE 1000 TERRORISTAS PALESTINOS  SE LLAMABA …"
-},
-{
-"answers": [
-" VELA",
-" ATLETISMO "
-],
-"correct": " JUDO ",
-"text": " EN QUE DEPORTE SE HAN GANADO LAS PRIMERAS MEDALLAS ISRAELÍES EN LA HISTORIA"
-},
-{
-"answers": [
-" SIRIA ",
-" Irán "
-],
-"correct": " IRAQ ",
-"text": " LA PLANTA NUCLEAR DE QUE PAÍS FUE ATACADO Y ELIMINADO POR LA FUERZA AÉREA ISRAELÍ EN EL AÑO 1981"
-},
-{
-"answers": [
-" MOSHÉ KATSAV ",
-" SHIMON PERES "
-],
-"correct": " REUVEN RIVLIN ",
-"text": "EL NOMBRE COMPLETO DEL PRESIDENTE ACTUAL DEL ESTADO DE ISRAEL? "
-},
-{
-"answers": [
-" NINGUNA DE LAS ANTERIORES ",
-" BENJAMÍN NETANYAHU "
-],
-"correct": " SHIMON PERES ",
-"text": " QUIEN LE REEMPLAZO A ISAAC RABIN COMO PRIMER MINISTRO DESPUES DEL ASESINATO DE RABIN  EN EL 1995?"
-},
-{
-"answers": [
-" YIGAEL YADIN ",
-" YAAKOV DORI "
-],
-"correct": " GADI EIZENKOT ",
-"text": " EL NOMBRE DEL JEFE DEL EJERCITO ACTUAL DEL ESTADO DE ISRAEL "
-},
-{
-"answers": [
-" IZU ",
-" AZI "
-],
-"correct": " UZI ",
-"text": " EL NOMBRE DEL REVOLVER ISRAELÍ QUE SE USABA EN LOS 50 Y LOS 60 POR EL EJERCITO ISRAELÍ "
-},
-{
-"answers": [
-" NINGUNA ES CORRECTA ",
-" IRANÍ"
-],
-"correct": " ISRAELÍ",
-"text": " DE QUE NACIONALIDAD FUE EL ASESINO DEL PRIMER MINISTRO ISRAELÍ RABIN?  "
-},
-{
-"answers": [
-" NINGUNA ES CORRECTA ",
-" ABU MUSAB AL ZARQAUI "
-],
-"correct": " EL REY HUSSEIN ",
-"text": " EL NOMBRE DEL LÍDER JORDANO QUE FIRMO EL TRATADO DE PAZ CON ISRAEL EN 1994?"
-},
-{
-"answers": [
-" NINGUNA ES CORRECTA ",
-" JERUSALÉN "
-],
-"correct": " HEBRON ",
-"text": " EN QUE CIUDAD DE ISRAEL SE ENCUENTRA LA TUMBA DE LOS PATRIARCAS"
-},
-{
-"answers": [
-" NINGUNA ES CORRECTA ",
-" CARMELO "
-],
-"correct": " HERMON ",
-"text": " EL NOMBRE DEL MONTE MAS ALTO EN ISRAEL "
-},
-{
-"answers": [
-" NETANYA",
-" TIBERIAS "
-],
-"correct": " EILAT ",
-"text": " EL NOMBRE DE LA CIUDAD QUE SE ENCUENTRA EN EL PUNTO MAS BAJO DEL MAPA DE ISRAEL "
-},
-{
-"answers": [
-" EILAT ",
-" TIBERIAS "
-],
-"correct": " METULA ",
-"text": " EL NOMBRE DE LA CIUDAD QUE SE ENCUENTRA EN EL PUNTO MAS ALTO DEL MAPA DE ISRAEL "
-},
-{
-"answers": [
-" LLUVIAS DE VERANO ",
-" FLECHA DEL SUR "
-],
-"correct": " OPERACIÓN SALOMÓN ",
-"text": " EL NOMBRE DEL OPERATIVO EN EL CUAL SE HAN TRAÍDO DURANTE UN DÍA Y MEDIO 14 MIL  JUDÍOS ETÍOPES A ISRAEL "
-},
-{
-"answers": [
-" 1981",
-" 1985 "
-],
-"correct": " 1982",
-"text": " EN QUE AÑO SE RETIRARON LAS FUERZAS DE TZAHAL DE LA PENÍNSULA DE SINAI?"
-},
-{
-"answers": [
-" IRÁN ",
-" SIRIA "
-],
-"correct": " UGANDA ",
-"text": " EN QUE PAÍS SE HA LLEVADO ACABO 'OPERACIÓN ENTEBBE' EN 1976? "
-},
-{
-"answers": [
-" DAN SHECHTMAN ",
-" MICHAEL LEVITT "
-],
-"correct": " SHAI AGNON ",
-"text": " EL PRIMER ISRAELÍ QUE HA GANADO UN PREMIO NOBEL EN EL 1966?"
-},
-{
-"answers": [
-" 1965 ",
-" 1964 "
-],
-"correct": " 1967 ",
-"text": "DESDE QUE AÑO ESTA UNIFICADA LA CUIDAD DE JERUSALÉN?"
-},
-{
-"answers": [
-" ZALMAN SHAZAR",
-" YITZJAK BEN-ZVI"
-],
-"correct": " JAIM WEIZMANN",
-"text": " PRIMER PRESIDENTE DEL ESTADO DE ISRAEL?"
-},
-{
-"answers": [
-" AL-JIHAD ",
-" HAMAS "
-],
-"correct": " HEZBOLLA ",
-"text": " EN LA SEGUNDA GUERRA DEL LÍBANO , CONTRA QUE ORGANIZACIÓN LUCHO ISRAEL?"
-},
-{
-"answers": [
-" NINGUNA ES CORRECTA ",
-" AYELET SHAKED"
-],
-"correct": " GOLDA MEIR ",
-"text": " PRIMERA MUJER QUE FUE PRIMER MINISTRO DE ISRAEL?"
-},
-{
-"answers": [
-" RETIRARSE ",
-" QUITAR "
-],
-"correct": " DESCONEXIÓN ",
-"text": " QUE SIGNIFICA EN ESPAÑOL HITNATKUT?"
-},
-{
-"answers": [
-" YAIR NETANYAHU ",
-" IDDO NETANYAHU "
-],
-"correct": " YONATAN NETANYAHU",
-"text": " HERMANO DEL PRIMER MINISTRO ACTUAL QUE MURIÓ EJERCIENDO EN 1976 EN LA OPERACIÓN DE ENTEBBE?"
-},
-{
-"answers": [
-" MIL MI-8",
-" CESSNA 172"
-],
-"correct": " KFIR ",
-"text": " AVIÓN FABRICADO EN ISRAEL? "
-},
-{
-"answers": [
-" AHORRO ",
-" RETIRADA "
-],
-"correct": " RESERVAS ",
-"text": " QUE SIGNIFICA MILUIM?"
-},
-{
-"answers": [
-" 1964 ",
-" 1962 "
-],
-"correct": " 1965 ",
-"text": " EN QUE AÑO SE ESTABLECIERON RELACIONES DIPLOMÁTICAS CON ALEMANIA?"
-},
-{
-"answers": [
-" 1983 ",
-" 1981 "
-],
-"correct": " 1982",
-"text": " EN QUE AÑO ESTALLO LA GUERRA DEL LÍBANO "
-},
-{
-"answers": [
-" 1953 ",
-" 1951 "
-],
-"correct": " 1949 ",
-"text": " EN QUE AÑO LLEGO EL CUERPO DE HETZEL A ISRAEL"
-}
-];
-$scope.initCounter();
-var i = 1;
-angular.forEach(cards, function(val){
-val.key = i;
-var rand = Math.floor(Math.random() * 3);
-val.real = val.answers;
-val.answers.splice(rand, 0, val.correct);
-val.correct = rand;
-i++;
-});
-cards = shuffle(cards);
-$scope.cards = cards;
-},1000)*/
 };
 $scope.giveMeStyle = function(){
   var cw = $('.image-question img').width();
@@ -929,11 +581,6 @@ $scope.goAway = function (countCall, card, reply, ble, question) {
         $scope.error = new Media("/android_asset/www/sounds/error1.wav");
       }, 500);
     }
-    $scope.macRef.child('sessions').child($scope.user.session).child($scope.user.key).child('answers')
-    .child($scope.iii).set({
-      'time': $scope.seconds,
-      'correct':correct
-    });
     if(card){
       $scope.macRef.child('questions').child(question).child('reply').child(replied)
       .transaction(function(currentData) {
